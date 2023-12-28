@@ -10,11 +10,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.ArcadeDrive;
 import frc.robot.commands.AutonomousDistance;
 import frc.robot.commands.AutonomousTime;
-import frc.robot.commands.ResetOdometry;
-import frc.robot.subsystems.DriveIORomi;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.OnBoardIO;
-import frc.robot.subsystems.OnBoardIO.ChannelMode;
+import edu.wpi.first.wpilibj.romi.OnBoardIO;
+import edu.wpi.first.wpilibj.romi.OnBoardIO.ChannelMode;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,14 +27,14 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private Drivetrain drivetrain;
-  private final OnBoardIO onboardIO = new OnBoardIO(ChannelMode.INPUT, ChannelMode.INPUT);
+  private final Drivetrain m_drivetrain = new Drivetrain();
+  private final OnBoardIO m_onboardIO = new OnBoardIO(ChannelMode.INPUT, ChannelMode.INPUT);
 
-  // Assumes a gamepad plugged into channnel 0
-  private final Joystick joystick = new Joystick(0);
+  // Assumes a gamepad plugged into channel 0
+  private final Joystick m_controller = new Joystick(0);
 
   // Create SmartDashboard chooser for autonomous routines
-  private final SendableChooser<Command> chooser = new SendableChooser<>();
+  private final SendableChooser<Command> m_chooser = new SendableChooser<>();
 
   // NOTE: The I/O pin functionality of the 5 exposed I/O pins depends on the hardware "overlay"
   // that is specified when launching the wpilib-ws server on the Romi raspberry pi.
@@ -51,10 +49,6 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-
-    // Create the drivetrain passing in the hardware IOLayer
-    this.drivetrain = new Drivetrain(new DriveIORomi());
-
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -68,19 +62,18 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Default command is arcade drive. This will run unless another command
     // is scheduled over it.
-    this.drivetrain.setDefaultCommand(getArcadeDriveCommand());
+    m_drivetrain.setDefaultCommand(getArcadeDriveCommand());
 
     // Example of how to use the onboard IO
-    Trigger onboardButtonA = new Trigger(this.onboardIO::getButtonAPressed);
+    Trigger onboardButtonA = new Trigger(m_onboardIO::getButtonAPressed);
     onboardButtonA
         .onTrue(new PrintCommand("Button A Pressed"))
         .onFalse(new PrintCommand("Button A Released"));
 
     // Setup SmartDashboard options
-    this.chooser.setDefaultOption("Auto Routine Distance", new AutonomousDistance(this.drivetrain));
-    this.chooser.addOption("Auto Routine Time", new AutonomousTime(this.drivetrain));
-    this.chooser.addOption("Reset Odometry", new ResetOdometry(this.drivetrain));
-    SmartDashboard.putData(this.chooser);
+    m_chooser.setDefaultOption("Auto Routine Distance", new AutonomousDistance(m_drivetrain));
+    m_chooser.addOption("Auto Routine Time", new AutonomousTime(m_drivetrain));
+    SmartDashboard.putData(m_chooser);
   }
 
   /**
@@ -89,7 +82,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return this.chooser.getSelected();
+    return m_chooser.getSelected();
   }
 
   /**
@@ -99,6 +92,6 @@ public class RobotContainer {
    */
   public Command getArcadeDriveCommand() {
     return new ArcadeDrive(
-        this.drivetrain, () -> -this.joystick.getRawAxis(1), () -> -this.joystick.getRawAxis(2));
+        m_drivetrain, () -> -m_controller.getRawAxis(1), () -> -m_controller.getRawAxis(2));
   }
 }

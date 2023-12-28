@@ -4,98 +4,126 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.romi.RomiGyro;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import frc.robot.sensors.RomiGyro;
 import frc.robot.subsystems.DriveIO.DriveIOInputs;
-import frc.robot.sensors.GyroIORomiGyro;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Drivetrain extends SubsystemBase {
 
-  // The Romi has the left and right motors set to
-  // PWM channels 0 and 1 respectively
-  // private final Spark leftMotor = new Spark(0);
-  // private final Spark rightMotor = new Spark(1);
-
-  // // The Romi has onboard encoders that are hardcoded
-  // // to use DIO pins 4/5 and 6/7 for the left and right
-  // private final Encoder leftEncoder = new Encoder(4, 5);
-  // private final Encoder rightEncoder = new Encoder(6, 7);
-
-  // Set up the differential drive controller
-  // private final DifferentialDrive diffDrive = new DifferentialDrive(this.leftMotor, this.rightMotor);
-
   // Set up the RomiGyro
-  private final RomiGyro gyro = new RomiGyro();
+  private final RomiGyro m_gyro = new RomiGyro();
 
   // Set up the BuiltInAccelerometer
-  private final BuiltInAccelerometer accelerometer = new BuiltInAccelerometer();
+  private final BuiltInAccelerometer m_accelerometer = new BuiltInAccelerometer();
 
   private final DriveIO io;
   private final DriveIOInputs inputs = new DriveIOInputs();
 
-  private double lastLeftDistanceMeters = 0.0;
-  private double lastRightDistanceMeters = 0.0;
-  private Rotation2d lastGyroRotation = new Rotation2d();
+  // Odometry class for tracking robot pose
+  private final DifferentialDriveOdometry m_odometry;
+
+  // Show a field diagram for tracking odometry
+  private final Field2d m_field2d = new Field2d();
+
+  // -----------------------------------------------------------
+  // Initialization
+  // -----------------------------------------------------------
 
   /** Creates a new Drivetrain. */
   public Drivetrain(DriveIO io) {
-
+    // Assign the hardware IO layer
     this.io = io;
 
-    // maxVelocityMetersPerSec = 0.6;
-    // wheelRadiusMeters = 0.035;
-    // trackWidthMeters = 0.281092;
-    // leftModel = new SimpleMotorFeedforward(0.27034, 0.64546, 0.021935);
-    // rightModel = new SimpleMotorFeedforward(0.48548, 0.37427, 0.07421);
-    // kP.setDefault(0.25);
-    // kD.setDefault(0.001);
-
-    // We need to invert one side of the drivetrain so that positive voltages
-    // result in both sides moving forward. Depending on how your robot's
-    // gearbox is constructed, you might have to invert the left side instead.
-    // this.rightMotor.setInverted(true);
-
-    // // Use inches as unit for encoder distances
-    // this.leftEncoder.setDistancePerPulse((Math.PI * Constants.kWheelDiameterMeters) / Constants.kCountsPerRevolution);
-    // this.rightEncoder.setDistancePerPulse((Math.PI * Constants.kWheelDiameterMeters) / Constants.kCountsPerRevolution);
     resetEncoders();
+
+    // Setup Odometry and Field2d view    
+    m_field2d.setRobotPose(Constants.initialPose);
+    m_odometry = new DifferentialDriveOdometry(getHeading(), 
+                   getLeftDistanceMeters(), getRightDistanceMeters(), 
+                   Constants.initialPose);
+
+    // Display the field on SmartDashboard and Simulator               
+    SmartDashboard.putData("field", m_field2d);
   }
 
-  public void arcadeDrive(double xaxisSpeed, double zaxisRotate) {
-    io.arcadeDrive(xaxisSpeed, zaxisRotate);
+  // -----------------------------------------------------------
+  // Control Input
+  // -----------------------------------------------------------
+
+  public void arcadeDrive(double xSpeed, double zRotation) {
+    var speeds = DifferentialDrive.arcadeDriveIK(xSpeed, zRotation, true);
+    io.setVoltage(speeds.left * 12.0, speeds.right * 12.0);
+  }
+
+  /**
+   * Resets the odometry to the specified pose
+   * @param pose The pose to which to set the odometry
+   */
+  public void resetOdometry(Pose2d pose) {
+    resetEncoders();
+    resetGyro();
+    m_odometry.resetPosition(getHeading(),
+                            getLeftDistanceMeters(), 
+                            getRightDistanceMeters(), 
+                            pose);
   }
 
   public void resetEncoders() {
     io.resetEncoders();
   }
 
-  // public int getLeftEncoderCount() {
-  //   return this.leftEncoder.get();
-  // }
+  /** Reset the gyro. */
+  public void resetGyro() {
+    m_gyro.reset();
+  }
 
-  // public int getRightEncoderCount() {
-  //   return this.rightEncoder.get();
-  // }
-
+  // -----------------------------------------------------------
+  // System State
+  // -----------------------------------------------------------
+  @AutoLogOutput
   public double getLeftDistanceMeters() {
     return inputs.leftPosition;
   }
 
+  @AutoLogOutput
   public double getRightDistanceMeters() {
     return inputs.rightPosition;
   }
 
+  @AutoLogOutput
   public double getAverageDistanceMeters() {
     return (getLeftDistanceMeters() + getRightDistanceMeters()) / 2.0;
+  }
+
+  /** Returns the velocity of the left wheels in meters/second. */
+  @AutoLogOutput
+  public double getLeftVelocityMeters() {
+    return inputs.leftVelocity;
+  }
+
+  /** Returns the velocity of the right wheels in meters/second. */
+  @AutoLogOutput
+  public double getRightVelocityMeters() {
+    return inputs.rightVelocity;
+  }
+
+
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    // Convert to wheel speeds
+    return new DifferentialDriveWheelSpeeds(getLeftVelocityMeters(), 
+                                            getRightVelocityMeters());
   }
 
   /**
@@ -104,7 +132,7 @@ public class Drivetrain extends SubsystemBase {
    * @return The acceleration of the Romi along the X-axis in Gs
    */
   public double getAccelX() {
-    return this.accelerometer.getX();
+    return m_accelerometer.getX();
   }
 
   /**
@@ -113,7 +141,7 @@ public class Drivetrain extends SubsystemBase {
    * @return The acceleration of the Romi along the Y-axis in Gs
    */
   public double getAccelY() {
-    return this.accelerometer.getY();
+    return m_accelerometer.getY();
   }
 
   /**
@@ -122,7 +150,7 @@ public class Drivetrain extends SubsystemBase {
    * @return The acceleration of the Romi along the Z-axis in Gs
    */
   public double getAccelZ() {
-    return this.accelerometer.getZ();
+    return m_accelerometer.getZ();
   }
 
   /**
@@ -131,7 +159,7 @@ public class Drivetrain extends SubsystemBase {
    * @return The current angle of the Romi in degrees
    */
   public double getGyroAngleX() {
-    return this.gyro.getAngleX();
+    return m_gyro.getAngleX();
   }
 
   /**
@@ -140,7 +168,7 @@ public class Drivetrain extends SubsystemBase {
    * @return The current angle of the Romi in degrees
    */
   public double getGyroAngleY() {
-    return this.gyro.getAngleY();
+    return m_gyro.getAngleY();
   }
 
   /**
@@ -149,14 +177,27 @@ public class Drivetrain extends SubsystemBase {
    * @return The current angle of the Romi in degrees
    */
   public double getGyroAngleZ() {
-    return this.gyro.getAngleZ();
+    return m_gyro.getAngleZ();
   }
 
-  /** Reset the gyro. */
-  public void resetGyro() {
-    this.gyro.reset();
+  /**
+   * Current heading of the Romi around the Z-axis.
+   *
+   * @return The current Rotation2d heading of the Romi
+   */
+  public Rotation2d getHeading() {
+    return new Rotation2d(getGyroAngleZ() * (Math.PI/180));
   }
 
+  /** Returns the current odometry pose in meters. */
+  @AutoLogOutput
+  public Pose2d getPose() {
+    return m_odometry.getPoseMeters();
+  }
+
+  // -----------------------------------------------------------
+  // Process Logic
+  // -----------------------------------------------------------
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -164,15 +205,21 @@ public class Drivetrain extends SubsystemBase {
     Logger.processInputs("Drive", inputs);
 
     // Update odometry
-    Rotation2d currentGyroRotation =
-        new Rotation2d(inputs.gyroYawPositionRad * -1);
-    // double leftDistanceMetersDelta =
-    //     getLeftDistanceMeters() - lastLeftDistanceMeters;
-    // double rightDistanceMetersDelta =
-    //     getRightDistanceMeters() - lastRightDistanceMeters;
+    m_odometry.update(getHeading(), 
+              getLeftDistanceMeters(), 
+              getRightDistanceMeters());
 
-    // lastLeftDistanceMeters = getLeftDistanceMeters();
-    // lastRightDistanceMeters = getRightDistanceMeters();
-    lastGyroRotation = currentGyroRotation;
+    publishTelemetry();          
+  }
+
+  public void publishTelemetry() {
+  
+    SmartDashboard.putNumber("Left wheel position", getLeftDistanceMeters());
+    SmartDashboard.putNumber("Right wheel position", getRightDistanceMeters());
+    SmartDashboard.putNumber("Average Distance", getAverageDistanceMeters());
+    SmartDashboard.putNumber("Heading", getHeading().getDegrees());
+    SmartDashboard.putNumber("Gyro Z", getGyroAngleZ());
+
+    m_field2d.setRobotPose(m_odometry.getPoseMeters()); 
   }
 }

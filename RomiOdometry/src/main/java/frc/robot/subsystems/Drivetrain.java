@@ -5,7 +5,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import frc.robot.Constants;
-import frc.robot.sensors.RomiGyro;
+import edu.wpi.first.wpilibj.romi.RomiGyro;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -75,12 +75,13 @@ public class Drivetrain extends SubsystemBase {
     resetEncoders();
     setupShuffleboard();
 
-    // Setup Odometry 
-    Pose2d initialPose = new Pose2d(0, 1.5, m_gyro.getRotation2d()); 
-    m_field2d.setRobotPose(initialPose);
-    m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(), 
+    // Setup Odometry and Field2d view  
+    m_field2d.setRobotPose(Constants.initialPose);
+    m_odometry = new DifferentialDriveOdometry(getHeading(), 
                    getLeftDistanceMeters(), getRightDistanceMeters(), 
-                   initialPose);
+                   Constants.initialPose);
+
+    // Display the field on SmartDashboard and Simulator   
     SmartDashboard.putData("field", m_field2d);
   }
 
@@ -88,7 +89,7 @@ public class Drivetrain extends SubsystemBase {
 
     // Create a tab for the Drivetrain
     ShuffleboardTab m_driveTab = Shuffleboard.getTab("Drivetrain");
-    m_headingEntry = m_driveTab.add("Heading Deg.", getHeading())
+    m_headingEntry = m_driveTab.add("Heading Deg.", getHeading().getDegrees())
         .withWidget(BuiltInWidgets.kGraph)      
         .withSize(3,3)
         .withPosition(0, 0)
@@ -134,9 +135,10 @@ public class Drivetrain extends SubsystemBase {
   public void resetOdometry(Pose2d pose) {
     resetEncoders();
     resetGyro();
-    m_odometry.resetPosition(m_gyro.getRotation2d(),
-          getLeftDistanceMeters(), getRightDistanceMeters(), 
-          pose);
+    m_odometry.resetPosition(getHeading(),
+                            getLeftDistanceMeters(), 
+                            getRightDistanceMeters(), 
+                            pose);
   }
 
   // -----------------------------------------------------------
@@ -162,16 +164,17 @@ public class Drivetrain extends SubsystemBase {
     return (getLeftDistanceMeters() + getRightDistanceMeters()) / 2.0;
   }
 
+  
   /**
    * Returns the current wheel speeds of the robot.
    * @return The current wheel speeds
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
     // Convert to wheel speeds
-    return new DifferentialDriveWheelSpeeds(m_leftEncoder.getDistance(), 
-                                            m_rightEncoder.getDistance());
+    return new DifferentialDriveWheelSpeeds(m_leftEncoder.getRate(), 
+                                            m_rightEncoder.getRate());
   }
-  
+
   /**
    * The acceleration in the X-axis.
    *
@@ -226,8 +229,13 @@ public class Drivetrain extends SubsystemBase {
     return m_gyro.getAngleZ();
   }
 
-  public double getHeading() {
-    return m_gyro.getRotation2d().getDegrees();
+  /**
+   * Current heading of the Romi around the Z-axis.
+   *
+   * @return The current Rotation2d heading of the Romi
+   */
+  public Rotation2d getHeading() {
+    return new Rotation2d(getGyroAngleZ() * (Math.PI/180));
   }
   
   // -----------------------------------------------------------
@@ -236,9 +244,9 @@ public class Drivetrain extends SubsystemBase {
   @Override
   public void periodic() {
     // Update the odometry in the periodic block
-    m_odometry.update(m_gyro.getRotation2d(), 
-                      m_leftEncoder.getDistance(), 
-                      m_rightEncoder.getDistance());
+    m_odometry.update(getHeading(), 
+                      getLeftDistanceMeters(), 
+                      getRightDistanceMeters());
 
     // This method will be called once per scheduler run
     publishTelemetry();
@@ -254,13 +262,13 @@ public class Drivetrain extends SubsystemBase {
     // SmartDashboard.putNumber("Left Wheel Speed", m_leftEncoder.getRate());
     // SmartDashboard.putNumber("Right Wheel Speed", m_rightEncoder.getRate());
 
-    SmartDashboard.putNumber("Heading", getHeading());
+    SmartDashboard.putNumber("Heading", getHeading().getDegrees());
 
     // Display the distance travelled for each wheel
     m_leftWheelPositionEntry.setDouble(getLeftDistanceMeters());
     m_rightWheelPositionEntry.setDouble(getRightDistanceMeters()); 
     m_avgDistanceEntry.setDouble(getAverageDistanceMeters());
-    m_headingEntry.setDouble(getHeading());
+    m_headingEntry.setDouble(getHeading().getDegrees());
 
     m_field2d.setRobotPose(m_odometry.getPoseMeters());  
   }

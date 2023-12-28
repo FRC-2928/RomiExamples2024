@@ -27,7 +27,7 @@ public class DriveIORomi implements DriveIO {
   private double appliedVoltsLeft = 0.0;
   private double appliedVoltsRight = 0.0;
 
-  private final DifferentialDrive diffDrive = new DifferentialDrive(leftMotor, rightMotor);
+  // private final DifferentialDrive diffDrive = new DifferentialDrive(leftMotor, rightMotor);
 
   public DriveIORomi() {
     // Romi encoders have 1440 pulses per revolution
@@ -50,11 +50,11 @@ public class DriveIORomi implements DriveIO {
     }
 
     inputs.leftPosition = leftEncoder.getDistance();
-    inputs.leftVelocityRadPerSec = leftEncoder.getRate();
+    inputs.leftVelocity = leftEncoder.getRate();
     inputs.leftAppliedVolts = appliedVoltsLeft;
 
     inputs.rightPosition = rightEncoder.getDistance();
-    inputs.rightVelocityRadPerSec = rightEncoder.getRate();
+    inputs.rightVelocity = rightEncoder.getRate();
     inputs.rightAppliedVolts = appliedVoltsRight;
 
     inputs.gyroConnected = true;
@@ -67,7 +67,7 @@ public class DriveIORomi implements DriveIO {
     closedLoop = false;
     appliedVoltsRight = rightVolts;
     appliedVoltsLeft = leftVolts;
-    leftMotor.setVoltage(leftVolts);
+    leftMotor.setVoltage(leftVolts * 1.1);
     rightMotor.setVoltage(rightVolts * -1);
   }
 
@@ -81,10 +81,10 @@ public class DriveIORomi implements DriveIO {
     this.rightFFVolts = rightFFVolts;
   }
 
-  @Override
-  public void arcadeDrive(double xaxisSpeed, double zaxisRotate) {
-    this.diffDrive.arcadeDrive(xaxisSpeed, zaxisRotate);
-  }
+  // @Override
+  // public void arcadeDrive(double xaxisSpeed, double zaxisRotate) {
+  //   this.diffDrive.arcadeDrive(xaxisSpeed, zaxisRotate);
+  // }
 
   @Override
   public void resetEncoders() {

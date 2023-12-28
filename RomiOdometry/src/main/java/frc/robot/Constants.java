@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 
 /**
@@ -21,4 +23,7 @@ public final class Constants {
     public static final double kTrackwidthMeters = 0.142072613;
     public static final DifferentialDriveKinematics kDriveKinematics =
         new DifferentialDriveKinematics(kTrackwidthMeters);
+
+    // We'll start the robot partly into the field.  This is better for testing    
+    public static final Pose2d initialPose = new Pose2d(2.0, 1.5, new Rotation2d());
 }

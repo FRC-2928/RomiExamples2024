@@ -7,22 +7,26 @@ package frc.robot.commands;
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class DriveDistance extends Command {
+/*
+ * Creates a new TurnTime command. This command will turn your robot for a
+ * desired rotational speed and time.
+ */
+public class TurnTime extends Command {
+  private final double m_duration;
+  private final double m_rotationalSpeed;
   private final Drivetrain m_drive;
-  private final double m_distance;
-  private final double m_speed;
+  private long m_startTime;
 
   /**
-   * Creates a new DriveDistance. This command will drive your your robot for a desired distance at
-   * a desired speed.
+   * Creates a new TurnTime.
    *
-   * @param speed The speed at which the robot will drive
-   * @param meters The number of meters the robot will drive
-   * @param drive The drivetrain subsystem on which this command will run
+   * @param speed The speed which the robot will turn. Negative is in reverse.
+   * @param time How much time to turn in seconds
+   * @param drive The drive subsystem on which this command will run
    */
-  public DriveDistance(double speed, double meters, Drivetrain drive) {
-    m_distance = meters;
-    m_speed = speed;
+  public TurnTime(double speed, double time, Drivetrain drive) {
+    m_rotationalSpeed = speed;
+    m_duration = time * 1000;
     m_drive = drive;
     addRequirements(drive);
   }
@@ -30,14 +34,14 @@ public class DriveDistance extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    m_startTime = System.currentTimeMillis();
     m_drive.arcadeDrive(0, 0);
-    m_drive.resetEncoders();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drive.arcadeDrive(m_speed, 0);
+    m_drive.arcadeDrive(0, m_rotationalSpeed);
   }
 
   // Called once the command ends or is interrupted.
@@ -49,7 +53,6 @@ public class DriveDistance extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // Compare distance travelled from start to desired distance
-    return Math.abs(m_drive.getAverageDistanceMeters()) >= m_distance;
+    return (System.currentTimeMillis() - m_startTime) >= m_duration;
   }
 }
