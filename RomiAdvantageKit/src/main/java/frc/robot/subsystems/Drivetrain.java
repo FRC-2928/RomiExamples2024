@@ -23,7 +23,7 @@ import org.littletonrobotics.junction.Logger;
 public class Drivetrain extends SubsystemBase {
 
   // Set up the RomiGyro
-  private final RomiGyro m_gyro = new RomiGyro();
+  // private final RomiGyro m_gyro = new RomiGyro();
 
   // Set up the BuiltInAccelerometer
   private final BuiltInAccelerometer m_accelerometer = new BuiltInAccelerometer();
@@ -73,7 +73,7 @@ public class Drivetrain extends SubsystemBase {
    */
   public void resetOdometry(Pose2d pose) {
     resetEncoders();
-    resetGyro();
+    // resetGyro();
     m_odometry.resetPosition(getHeading(),
                             getLeftDistanceMeters(), 
                             getRightDistanceMeters(), 
@@ -84,10 +84,10 @@ public class Drivetrain extends SubsystemBase {
     io.resetEncoders();
   }
 
-  /** Reset the gyro. */
-  public void resetGyro() {
-    m_gyro.reset();
-  }
+  // /** Reset the gyro. */
+  // public void resetGyro() {
+  //   m_gyro.reset();
+  // }
 
   // -----------------------------------------------------------
   // System State
@@ -158,18 +158,18 @@ public class Drivetrain extends SubsystemBase {
    *
    * @return The current angle of the Romi in degrees
    */
-  public double getGyroAngleX() {
-    return m_gyro.getAngleX();
-  }
+  // public double getGyroAngleX() {
+  //   return m_gyro.getAngleX();
+  // }
 
   /**
    * Current angle of the Romi around the Y-axis.
    *
    * @return The current angle of the Romi in degrees
    */
-  public double getGyroAngleY() {
-    return m_gyro.getAngleY();
-  }
+  // public double getGyroAngleY() {
+  //   return m_gyro.getAngleY();
+  // }
 
   /**
    * Current angle of the Romi around the Z-axis.
@@ -177,7 +177,8 @@ public class Drivetrain extends SubsystemBase {
    * @return The current angle of the Romi in degrees
    */
   public double getGyroAngleZ() {
-    return m_gyro.getAngleZ();
+    return inputs.gyroYawPositionRad;
+    // return m_gyro.getAngleZ();
   }
 
   /**
@@ -186,7 +187,8 @@ public class Drivetrain extends SubsystemBase {
    * @return The current Rotation2d heading of the Romi
    */
   public Rotation2d getHeading() {
-    return new Rotation2d(getGyroAngleZ() * (Math.PI/180));
+    return new Rotation2d(getGyroAngleZ());
+    // return new Rotation2d(getGyroAngleZ() * (Math.PI/180));
   }
 
   /** Returns the current odometry pose in meters. */
