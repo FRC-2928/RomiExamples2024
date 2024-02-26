@@ -72,21 +72,17 @@ public class Drivetrain extends SubsystemBase {
                 // Record a frame for the left motors.  Since these share an encoder, we consider
                 // the entire group to be one motor.
                 log.motor("drive-left")
-                    .voltage(
-                        this.appliedVoltage.mut_replace(
+                    .voltage(this.appliedVoltage.mut_replace(
                             this.leftMotor.get() * RobotController.getBatteryVoltage(), Volts))
                     .linearPosition(this.distance.mut_replace(this.leftEncoder.getDistance(), Meters))
-                    .linearVelocity(
-                        this.velocity.mut_replace(this.leftEncoder.getRate(), MetersPerSecond));
+                    .linearVelocity(this.velocity.mut_replace(this.leftEncoder.getRate(), MetersPerSecond));
                 // Record a frame for the right motors.  Since these share an encoder, we consider
                 // the entire group to be one motor.
                 log.motor("drive-right")
-                    .voltage(
-                        this.appliedVoltage.mut_replace(
+                    .voltage(this.appliedVoltage.mut_replace(
                             this.rightMotor.get() * RobotController.getBatteryVoltage(), Volts))
                     .linearPosition(this.distance.mut_replace(this.rightEncoder.getDistance(), Meters))
-                    .linearVelocity(
-                        this.velocity.mut_replace(this.rightEncoder.getRate(), MetersPerSecond));
+                    .linearVelocity(this.velocity.mut_replace(this.rightEncoder.getRate(), MetersPerSecond));
               },
               // Tell SysId to make generated commands require this subsystem, suffix test state in
               // WPILog with this subsystem's name ("drive")
