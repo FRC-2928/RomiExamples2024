@@ -4,9 +4,10 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
+import frc.robot.subsystems.Drivetrain;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -17,13 +18,9 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static final double kCountsPerRevolution = 1440.0;
-    public static final double kWheelDiameterMeters = 0.07; // 70 mm
-
-    public static final double kTrackwidthMeters = 0.142072613;
-    public static final DifferentialDriveKinematics kDriveKinematics =
-        new DifferentialDriveKinematics(kTrackwidthMeters);
-
-    // We'll start the robot partly into the field.  This is better for testing    
-    public static final Pose2d initialPose = new Pose2d(2.0, 1.5, new Rotation2d());
+    public static final double countsPerRevolution = 1440.0;
+    public static final Measure<Distance> wheelDiameter = Units.Meters.of(0.7);
+    public static final Measure<Distance> wheelCircumference = wheelDiameter.times(Math.PI);
+    public static final Measure<Distance> distancePerPulse = wheelDiameter.divide(countsPerRevolution);
+    // public static final double kWheelDiameterInch = 2.75591; // 70 mm
 }

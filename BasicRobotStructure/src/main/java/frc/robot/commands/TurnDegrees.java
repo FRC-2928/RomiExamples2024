@@ -55,14 +55,14 @@ public class TurnDegrees extends Command {
        has a wheel placement diameter (149 mm) - width of the wheel (8 mm) = 141 mm
        or 5.551 inches. We then take into consideration the width of the tires.
     */
-    double metersPerDegree = Math.PI * 0.141 / 360;
+    double inchPerDegree = Math.PI * 5.551 / 360;
     // Compare distance travelled from start to distance based on degree turn
-    return getAverageTurningDistance() >= (metersPerDegree * m_degrees);
+    return getAverageTurningDistance() >= (inchPerDegree * m_degrees);
   }
 
   private double getAverageTurningDistance() {
-    double leftDistance = Math.abs(m_drive.getLeftDistanceMeters());
-    double rightDistance = Math.abs(m_drive.getRightDistanceMeters());
+    double leftDistance = Math.abs(m_drive.getLeftDistanceInch());
+    double rightDistance = Math.abs(m_drive.getRightDistanceInch());
     return (leftDistance + rightDistance) / 2.0;
   }
 }
