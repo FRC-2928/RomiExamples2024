@@ -8,9 +8,9 @@ import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveDistance extends Command {
-  private final Drivetrain m_drive;
-  private final double m_distance;
-  private final double m_speed;
+  private final Drivetrain drive;
+  private final double distance;
+  private final double speed;
 
   /**
    * Creates a new DriveDistance. This command will drive your your robot for a desired distance at
@@ -21,35 +21,35 @@ public class DriveDistance extends Command {
    * @param drive The drivetrain subsystem on which this command will run
    */
   public DriveDistance(double speed, double meters, Drivetrain drive) {
-    m_distance = meters;
-    m_speed = speed;
-    m_drive = drive;
+    this.distance = meters;
+    this.speed = speed;
+    this.drive = drive;
     addRequirements(drive);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_drive.arcadeDrive(0, 0);
-    m_drive.resetEncoders();
+    this.drive.arcadeDrive(0, 0);
+    this.drive.resetEncoders();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drive.arcadeDrive(m_speed, 0);
+    this.drive.arcadeDrive(this.speed, 0);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_drive.arcadeDrive(0, 0);
+    this.drive.arcadeDrive(0, 0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     // Compare distance travelled from start to desired distance
-    return Math.abs(m_drive.getAverageDistanceInch()) >= m_distance;
+    return Math.abs(this.drive.getAverageDistanceInch()) >= this.distance;
   }
 }
