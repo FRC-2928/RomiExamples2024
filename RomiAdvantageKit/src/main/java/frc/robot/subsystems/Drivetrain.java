@@ -10,7 +10,6 @@ import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.romi.RomiGyro;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
@@ -192,7 +191,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /** Returns the current odometry pose in meters. */
-  @AutoLogOutput
+  @AutoLogOutput(key="Drivetrain/Odometry")
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
   }

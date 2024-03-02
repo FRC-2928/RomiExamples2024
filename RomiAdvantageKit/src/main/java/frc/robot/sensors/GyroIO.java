@@ -1,5 +1,7 @@
 package frc.robot.sensors;
 
+import edu.wpi.first.wpilibj.romi.RomiGyro;
+
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
