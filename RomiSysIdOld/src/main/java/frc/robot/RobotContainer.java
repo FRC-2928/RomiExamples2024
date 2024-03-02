@@ -10,16 +10,15 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.ArcadeDrive;
 import frc.robot.commands.AutonomousDistance;
 import frc.robot.commands.AutonomousTime;
-import frc.robot.commands.ResetOdometry;
-import frc.robot.subsystems.DriveIORomi;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.OnBoardIO;
-import frc.robot.subsystems.OnBoardIO.ChannelMode;
+import edu.wpi.first.wpilibj.romi.OnBoardIO;
+import edu.wpi.first.wpilibj.romi.OnBoardIO.ChannelMode;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -29,10 +28,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private Drivetrain drivetrain;
+  private final Drivetrain drivetrain = new Drivetrain();
   private final OnBoardIO onboardIO = new OnBoardIO(ChannelMode.INPUT, ChannelMode.INPUT);
 
-  // Assumes a gamepad plugged into channnel 0
+  // Assumes a gamepad plugged into channel 0
   private final Joystick joystick = new Joystick(0);
 
   // Create SmartDashboard chooser for autonomous routines
@@ -51,10 +50,6 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-
-    // Create the drivetrain passing in the hardware IOLayer
-    this.drivetrain = new Drivetrain(new DriveIORomi());
-
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -79,7 +74,20 @@ public class RobotContainer {
     // Setup SmartDashboard options
     this.chooser.setDefaultOption("Auto Routine Distance", new AutonomousDistance(this.drivetrain));
     this.chooser.addOption("Auto Routine Time", new AutonomousTime(this.drivetrain));
-    this.chooser.addOption("Reset Odometry", new ResetOdometry(this.drivetrain));
+   
+    // Set up SysId routines
+		this.chooser.addOption(
+			"Drive SysId (Quasistatic Forward)",
+			this.drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+		this.chooser.addOption(
+			"Drive SysId (Quasistatic Reverse)",
+			this.drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+		this.chooser.addOption(
+			"Drive SysId (Dynamic Forward)", this.drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+		this.chooser.addOption(
+			"Drive SysId (Dynamic Reverse)", this.drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+   
+
     SmartDashboard.putData(this.chooser);
   }
 

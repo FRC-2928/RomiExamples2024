@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -13,6 +17,27 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static final double kCountsPerRevolution = 1440.0;
-    public static final double kWheelDiameterMeters = 0.07; // 70 mm
+  public static final double kCountsPerRevolution = 1440.0;
+  public static final double kWheelDiameterMeters = 0.07; // 70 mm
+
+  public static final double kTrackwidthMeters = 0.142072613;
+    public static final DifferentialDriveKinematics kDriveKinematics =
+        new DifferentialDriveKinematics(kTrackwidthMeters);
+
+  // We'll start the robot partly into the field.  This is better for testing    
+  public static final Pose2d initialPose = new Pose2d(2.0, 1.5, new Rotation2d());
+        
+  public static final double loopPeriodSecs = 0.02;
+
+  // AdvantageKit mode
+  public static final Mode currentMode = Mode.SIM;
+
+  public static enum Mode {
+      /** Running on a real robot. */
+      // REAL,
+      /** Running a physics simulator. */
+      SIM,
+      /** Replaying from a log file. */
+      REPLAY
+  }
 }

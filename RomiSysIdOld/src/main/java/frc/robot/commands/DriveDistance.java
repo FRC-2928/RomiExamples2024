@@ -7,26 +7,22 @@ package frc.robot.commands;
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj2.command.Command;
 
-/*
- * Creates a new TurnTime command. This command will turn your robot for a
- * desired rotational speed and time.
- */
-public class TurnTime extends Command {
-  private final double duration;
-  private final double rotationalSpeed;
+public class DriveDistance extends Command {
   private final Drivetrain drive;
-  private long startTime;
+  private final double distance;
+  private final double speed;
 
   /**
-   * Creates a new TurnTime.
+   * Creates a new DriveDistance. This command will drive your your robot for a desired distance at
+   * a desired speed.
    *
-   * @param speed The speed which the robot will turn. Negative is in reverse.
-   * @param time How much time to turn in seconds
-   * @param drive The drive subsystem on which this command will run
+   * @param speed The speed at which the robot will drive
+   * @param meters The number of inches the robot will drive
+   * @param drive The drivetrain subsystem on which this command will run
    */
-  public TurnTime(double speed, double time, Drivetrain drive) {
-    this.rotationalSpeed = speed;
-    this.duration = time * 1000;
+  public DriveDistance(double speed, double meters, Drivetrain drive) {
+    this.distance = meters;
+    this.speed = speed;
     this.drive = drive;
     addRequirements(drive);
   }
@@ -34,14 +30,14 @@ public class TurnTime extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    this.startTime = System.currentTimeMillis();
     this.drive.arcadeDrive(0, 0);
+    this.drive.resetEncoders();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    this.drive.arcadeDrive(0, this.rotationalSpeed);
+    this.drive.arcadeDrive(this.speed, 0);
   }
 
   // Called once the command ends or is interrupted.
@@ -53,6 +49,7 @@ public class TurnTime extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (System.currentTimeMillis() - this.startTime) >= this.duration;
+    // Compare distance travelled from start to desired distance
+    return Math.abs(this.drive.getAverageDistanceInch()) >= this.distance;
   }
 }
