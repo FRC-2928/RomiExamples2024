@@ -4,6 +4,13 @@
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/SendableChooser[0]": "String Chooser",
       "/SmartDashboard/field": "Field2d"
+    },
+    "windows": {
+      "/SmartDashboard/SendableChooser[0]": {
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables Info": {

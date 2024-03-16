@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -80,6 +81,19 @@ public class RobotContainer {
     this.chooser.setDefaultOption("Auto Routine Distance", new AutonomousDistance(this.drivetrain));
     this.chooser.addOption("Auto Routine Time", new AutonomousTime(this.drivetrain));
     this.chooser.addOption("Reset Odometry", new ResetOdometry(this.drivetrain));
+
+    // Set up SysId routines
+		this.chooser.addOption(
+			"Drive SysId (Quasistatic Forward)",
+			this.drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+		this.chooser.addOption(
+			"Drive SysId (Quasistatic Reverse)",
+			this.drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+		this.chooser.addOption(
+			"Drive SysId (Dynamic Forward)", this.drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+		this.chooser.addOption(
+			"Drive SysId (Dynamic Reverse)", this.drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+   
     SmartDashboard.putData(this.chooser);
   }
 

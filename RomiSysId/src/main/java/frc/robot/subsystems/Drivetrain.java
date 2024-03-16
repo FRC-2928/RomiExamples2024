@@ -14,7 +14,10 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveIO.DriveIOInputs;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -36,6 +39,23 @@ public class Drivetrain extends SubsystemBase {
   // Show a field diagram for tracking odometry
   private final Field2d m_field2d = new Field2d();
 
+  // Create the SysId routine
+  private final SysIdRoutine sysIdRoutine = new SysIdRoutine(
+      new SysIdRoutine.Config(
+              null, null, null, // Use default config
+              (state) -> Logger.recordOutput("Drivetrain/SysIdTestState", state.toString())
+            ),
+            new SysIdRoutine.Mechanism(
+              // (Measure<Voltage> volts) -> {
+              //   this.leftMotor.setVoltage(volts.in(Volts));
+              //   this.rightMotor.setVoltage(volts.in(Volts));
+              // },
+              (voltage) -> this.runVolts(voltage.in(Volts)),
+              null, // No log consumer, since data is recorded by AdvantageKit
+              this
+        )
+      );
+
   // -----------------------------------------------------------
   // Initialization
   // -----------------------------------------------------------
@@ -55,6 +75,7 @@ public class Drivetrain extends SubsystemBase {
 
     // Display the field on SmartDashboard and Simulator               
     SmartDashboard.putData("field", m_field2d);
+
   }
 
   // -----------------------------------------------------------
@@ -64,6 +85,10 @@ public class Drivetrain extends SubsystemBase {
   public void arcadeDrive(double xSpeed, double zRotation) {
     var speeds = DifferentialDrive.arcadeDriveIK(xSpeed, zRotation, true);
     io.setVoltage(speeds.left * 12.0, speeds.right * 12.0);
+  }
+
+  public void runVolts(double voltage) {
+    io.setVoltage(voltage, voltage);
   }
 
   /**
@@ -210,7 +235,7 @@ public class Drivetrain extends SubsystemBase {
               getLeftDistanceMeters(), 
               getRightDistanceMeters());
 
-    publishTelemetry();          
+    // publishTelemetry();          
   }
 
   public void publishTelemetry() {
@@ -223,4 +248,14 @@ public class Drivetrain extends SubsystemBase {
 
     m_field2d.setRobotPose(m_odometry.getPoseMeters()); 
   }
+
+  /** Returns a command to run a quasistatic test in the specified direction. */
+	public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+		return sysIdRoutine.quasistatic(direction);
+	}
+
+	/** Returns a command to run a dynamic test in the specified direction. */
+	public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+		return sysIdRoutine.dynamic(direction);
+	}
 }

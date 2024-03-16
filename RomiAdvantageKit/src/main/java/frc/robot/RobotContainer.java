@@ -77,8 +77,8 @@ public class RobotContainer {
         .onFalse(new PrintCommand("Button A Released"));
 
     // Setup SmartDashboard options
-    this.chooser.setDefaultOption("Auto Routine Distance", new AutonomousDistance(this.drivetrain));
-    this.chooser.addOption("Auto Routine Time", new AutonomousTime(this.drivetrain));
+    this.chooser.setDefaultOption("Auto Routine Time", new AutonomousTime(this.drivetrain));
+    this.chooser.addOption("Auto Routine Distance", new AutonomousDistance(this.drivetrain));  
     this.chooser.addOption("Reset Odometry", new ResetOdometry(this.drivetrain));
     SmartDashboard.putData(this.chooser);
   }
