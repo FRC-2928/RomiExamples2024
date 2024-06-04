@@ -6,15 +6,28 @@
           "open": true
         }
       }
+    },
+    "Timing": {
+      "window": {
+        "visible": false
+      }
     }
   },
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/SmartDashboard/SendableChooser[0]": "String Chooser"
+      "/SmartDashboard/SendableChooser[0]": "String Chooser",
+      "/SmartDashboard/field": "Field2d"
     },
     "windows": {
       "/SmartDashboard/SendableChooser[0]": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/field": {
+        "height": 4.0,
+        "width": 8.0,
         "window": {
           "visible": true
         }
@@ -23,17 +36,18 @@
   },
   "NetworkTables": {
     "transitory": {
+      "Shuffleboard": {
+        "Drivetrain": {
+          "open": true
+        },
+        "open": true
+      },
       "SmartDashboard": {
         "open": true
       }
     }
   },
   "NetworkTables Info": {
-    "Server": {
-      "Subscribers": {
-        "open": true
-      }
-    },
     "visible": true
   }
 }
