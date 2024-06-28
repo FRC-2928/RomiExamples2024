@@ -18,23 +18,23 @@ public class Drivetrain extends SubsystemBase {
 
   // The Romi has the left and right motors set to
   // PWM channels 0 and 1 respectively
-  private final Spark leftMotor = new Spark(0);
-  private final Spark rightMotor = new Spark(1);
+  private final Spark m_leftMotor = new Spark(0);
+  private final Spark m_rightMotor = new Spark(1);
 
   // The Romi has onboard encoders that are hardcoded
   // to use DIO pins 4/5 and 6/7 for the left and right
-  private final Encoder leftEncoder = new Encoder(4, 5);
-  private final Encoder rightEncoder = new Encoder(6, 7);
+  private final Encoder m_leftEncoder = new Encoder(4, 5);
+  private final Encoder m_rightEncoder = new Encoder(6, 7);
 
   // Set up the differential drive controller
-  private final DifferentialDrive diffDrive =
-      new DifferentialDrive(leftMotor::set, rightMotor::set);
+  private final DifferentialDrive m_diffDrive =
+      new DifferentialDrive(m_leftMotor::set, m_rightMotor::set);
 
   // Set up the RomiGyro
-  private final RomiGyro gyro = new RomiGyro();
+  private final RomiGyro m_gyro = new RomiGyro();
 
   // Set up the BuiltInAccelerometer
-  private final BuiltInAccelerometer accelerometer = new BuiltInAccelerometer();
+  private final BuiltInAccelerometer m_accelerometer = new BuiltInAccelerometer();
 
   // -----------------------------------------------------------
   // Initialization
@@ -42,17 +42,17 @@ public class Drivetrain extends SubsystemBase {
 
   /** Creates a new Drivetrain. */
   public Drivetrain() {
-    SendableRegistry.addChild(this.diffDrive, this.leftMotor);
-    SendableRegistry.addChild(this.diffDrive, this.rightMotor);
+    SendableRegistry.addChild(m_diffDrive, m_leftMotor);
+    SendableRegistry.addChild(m_diffDrive, m_rightMotor);
 
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
-    this.rightMotor.setInverted(true);
+    m_rightMotor.setInverted(true);
 
     // Use inches as unit for encoder distances
-    this.leftEncoder.setDistancePerPulse((Math.PI * Constants.kWheelDiameterMeters) / Constants.kCountsPerRevolution);
-    this.rightEncoder.setDistancePerPulse((Math.PI * Constants.kWheelDiameterMeters) / Constants.kCountsPerRevolution);
+    m_leftEncoder.setDistancePerPulse((Math.PI * Constants.kWheelDiameterMeters) / Constants.kCountsPerRevolution);
+    m_rightEncoder.setDistancePerPulse((Math.PI * Constants.kWheelDiameterMeters) / Constants.kCountsPerRevolution);
     resetEncoders();
   }
 
@@ -61,40 +61,40 @@ public class Drivetrain extends SubsystemBase {
   // -----------------------------------------------------------
 
   public void arcadeDrive(double xaxisSpeed, double zaxisRotate) {
-    this.diffDrive.arcadeDrive(xaxisSpeed, zaxisRotate);
+    m_diffDrive.arcadeDrive(xaxisSpeed, zaxisRotate);
   }
 
   public void resetEncoders() {
-    this.leftEncoder.reset();
-    this.rightEncoder.reset();
+    m_leftEncoder.reset();
+    m_rightEncoder.reset();
   }
 
   public void zeroHeading() {
-    this.gyro.reset();
+    m_gyro.reset();
   }
 
   /** Reset the gyro. */
   public void resetGyro() {
-    this.gyro.reset();
+    m_gyro.reset();
   }
 
   // -----------------------------------------------------------
   // System State
   // -----------------------------------------------------------
   public int getLeftEncoderCount() {
-    return this.leftEncoder.get();
+    return m_leftEncoder.get();
   }
 
   public int getRightEncoderCount() {
-    return this.rightEncoder.get();
+    return m_rightEncoder.get();
   }
 
   public double getLeftDistanceMeters() {
-    return this.leftEncoder.getDistance();
+    return m_leftEncoder.getDistance();
   }
 
   public double getRightDistanceMeters() {
-    return this.rightEncoder.getDistance();
+    return m_rightEncoder.getDistance();
   }
 
   public double getAverageDistanceInch() {
@@ -107,7 +107,7 @@ public class Drivetrain extends SubsystemBase {
    * @return The acceleration of the Romi along the X-axis in Gs
    */
   public double getAccelX() {
-    return this.accelerometer.getX();
+    return m_accelerometer.getX();
   }
 
   /**
@@ -116,7 +116,7 @@ public class Drivetrain extends SubsystemBase {
    * @return The acceleration of the Romi along the Y-axis in Gs
    */
   public double getAccelY() {
-    return this.accelerometer.getY();
+    return m_accelerometer.getY();
   }
 
   /**
@@ -125,7 +125,7 @@ public class Drivetrain extends SubsystemBase {
    * @return The acceleration of the Romi along the Z-axis in Gs
    */
   public double getAccelZ() {
-    return this.accelerometer.getZ();
+    return m_accelerometer.getZ();
   }
 
   /**
@@ -134,7 +134,7 @@ public class Drivetrain extends SubsystemBase {
    * @return The current angle of the Romi in degrees
    */
   public double getGyroAngleX() {
-    return this.gyro.getAngleX();
+    return m_gyro.getAngleX();
   }
 
   /**
@@ -143,7 +143,7 @@ public class Drivetrain extends SubsystemBase {
    * @return The current angle of the Romi in degrees
    */
   public double getGyroAngleY() {
-    return this.gyro.getAngleY();
+    return m_gyro.getAngleY();
   }
 
   /**
@@ -152,7 +152,7 @@ public class Drivetrain extends SubsystemBase {
    * @return The current angle of the Romi in degrees
    */
   public double getGyroAngleZ() {
-    return this.gyro.getAngleZ();
+    return m_gyro.getAngleZ();
   }
 
   public Rotation2d getHeading() {
