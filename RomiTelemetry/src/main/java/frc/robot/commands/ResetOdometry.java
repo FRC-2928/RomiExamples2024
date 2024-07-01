@@ -16,7 +16,7 @@ public class ResetOdometry extends InstantCommand {
     public ResetOdometry(Drivetrain drive) {
         m_drive = drive;
         // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(drive);
+        addRequirements(m_drive);
     }
 
   // Called when the command is initially scheduled.

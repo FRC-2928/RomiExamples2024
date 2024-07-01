@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.Encoder;
@@ -180,8 +181,8 @@ public class Drivetrain extends SubsystemBase {
     return m_gyro.getAngleZ();
   }
 
-  public double getHeading() {
-    return m_gyro.getRotation2d().getDegrees();
+  public Rotation2d getHeading() {
+    return new Rotation2d(getGyroAngleZ() * (Math.PI/180));
   }
   
   // -----------------------------------------------------------
@@ -198,13 +199,13 @@ public class Drivetrain extends SubsystemBase {
     // Display the meters per/second for each wheel and the heading
     SmartDashboard.putNumber("Left Wheel Speed", m_leftEncoder.getRate());
     SmartDashboard.putNumber("Right Wheel Speed", m_rightEncoder.getRate());
-    SmartDashboard.putNumber("Heading", getHeading());
+    SmartDashboard.putNumber("Heading", getHeading().getDegrees());
 
     // Display the distance travelled for each wheel
     m_leftWheelPositionEntry.setDouble(getLeftDistanceMeters());
     m_rightWheelPositionEntry.setDouble(getRightDistanceMeters()); 
     m_avgDistanceEntry.setDouble(getAverageDistanceMeters());
-    m_headingEntry.setDouble(getHeading());
+    m_headingEntry.setDouble(getHeading().getDegrees());
   }
 
 }
