@@ -28,7 +28,7 @@ public class TurnToAnglePID extends PIDCommand {
                           Constants.kITurnVel, 
                           Constants.kDTurnVel),
         // This should return the measurement
-        () -> drivetrain.getHeading(),
+        () -> drivetrain.getHeading().getDegrees(),
         // This should return the setpoint (can also be a constant)
         () -> targetAngleDegrees,
         // This uses the output

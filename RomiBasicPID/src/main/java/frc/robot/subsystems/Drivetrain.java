@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -12,8 +13,8 @@ import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import frc.robot.Constants;
-import frc.robot.sensors.RomiGyro;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.romi.RomiGyro;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -90,11 +91,6 @@ public class Drivetrain extends SubsystemBase {
     ShuffleboardTab m_driveTab = Shuffleboard.getTab("Drivetrain");
 
     // Add basic telemetry metrics
-    m_headingEntry = m_driveTab.add("Heading Deg.", getHeading())
-        .withWidget(BuiltInWidgets.kGraph)      
-        .withSize(3,3)
-        .withPosition(0, 0)
-        .getEntry();  
     m_leftWheelPositionEntry = m_driveTab.add("Left Wheel Pos.", getLeftDistanceMeters())
         .withWidget(BuiltInWidgets.kGraph)      
         .withSize(3,3)  
@@ -109,17 +105,7 @@ public class Drivetrain extends SubsystemBase {
         .withWidget(BuiltInWidgets.kGraph)      
         .withSize(3,3)
         .withPosition(10, 0)
-        .getEntry();
-    // m_leftWheelSpeedsEntry = m_driveTab.add("Left Wheel Speed", getWheelSpeeds().leftMetersPerSecond)
-    //     .withWidget(BuiltInWidgets.kGraph)      
-    //     .withSize(3,3)
-    //     .withPosition(13, 0)
-    //     .getEntry();
-    // m_rightWheelSpeedsEntry = m_driveTab.add("Right Wheel S", getRightRate())
-    //     .withWidget(BuiltInWidgets.kGraph)      
-    //     .withSize(3,3)
-    //     .withPosition(15, 0)
-    //     .getEntry();             
+        .getEntry();    
         
     // Add PID tuning parameters (distance)
     m_distanceP = m_driveTab.add("DistancekP", Constants.kPDriveVel)
@@ -247,28 +233,6 @@ public class Drivetrain extends SubsystemBase {
     return (getLeftDistanceMeters() + getRightDistanceMeters()) / 2.0;
   }
 
-  // /**
-  //  * Returns the current left wheel speeds of the robot in meters per second.
-  //  * 
-  //  * @return The current left wheel speed
-  //  */
-  // public double getLeftRate() {
-  //   double rate =  getLeftDistanceMeters() - m_leftLastDistance;  
-  //   m_leftLastDistance = getLeftDistanceMeters();    
-  //   return rate * 50; // Use 50 cycles per second
-  // }
-
-  // /**
-  //  * Returns the current right wheel speeds of the robot in meters per second.
-  //  * 
-  //  * @return The current right wheel speed
-  //  */
-  // public double getRightRate() {
-  //   double rate =  getRightDistanceMeters() - m_rightLastDistance;    
-  //   m_rightLastDistance = getRightDistanceMeters(); 
-  //   return rate * 50; // Use 50 cycles per second 
-  // }
-
   /**
    * Returns the current wheel speeds of the robot.
    * 
@@ -332,8 +296,9 @@ public class Drivetrain extends SubsystemBase {
     return m_gyro.getAngleZ();
   }
 
-  public double getHeading() {
-    return m_gyro.getRotation2d().getDegrees();
+  public Rotation2d getHeading() {
+    return new Rotation2d(getGyroAngleZ() * (Math.PI/180));
+    // return m_gyro.getRotation2d().getDegrees();
   }
   
   // -----------------------------------------------------------
@@ -350,18 +315,13 @@ public class Drivetrain extends SubsystemBase {
     DifferentialDriveWheelSpeeds wheel_speeds = getWheelSpeeds();
     SmartDashboard.putNumber("Left Wheel Speed", wheel_speeds.leftMetersPerSecond);
     SmartDashboard.putNumber("Right Wheel Speed", wheel_speeds.rightMetersPerSecond);
-    // SmartDashboard.putNumber("Left Wheel Speed", m_leftEncoder.getRate());
-    // SmartDashboard.putNumber("Right Wheel Speed", m_rightEncoder.getRate());
-    SmartDashboard.putNumber("Heading", getHeading());
+    SmartDashboard.putNumber("Heading", getHeading().getDegrees());
     
 
     // Display the distance travelled for each wheel
     m_leftWheelPositionEntry.setDouble(getLeftDistanceMeters());
     m_rightWheelPositionEntry.setDouble(getRightDistanceMeters()); 
     m_avgDistanceEntry.setDouble(getAverageDistanceMeters());
-    m_headingEntry.setDouble(getHeading());
-    // m_leftWheelSpeedsEntry.setDouble(getWheelSpeeds().leftMetersPerSecond);
-    // m_rightWheelSpeedsEntry.setDouble(getRightRate());
   }
 
 }

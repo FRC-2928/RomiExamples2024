@@ -29,7 +29,7 @@ public class TurnToAngleProfiled extends ProfiledPIDCommand {
                                              Constants.kMaxTurnAccelDegPerSSquared)),
 
         // This should return the measurement
-        () -> drivetrain.getHeading(),
+        () -> drivetrain.getHeading().getDegrees(),
 
         // This should return the goal (can also be a constant)
         () -> new TrapezoidProfile.State(targetAngleDegrees,0),
